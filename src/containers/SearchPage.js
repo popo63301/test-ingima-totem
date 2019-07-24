@@ -77,7 +77,6 @@ class SearchPage extends Component {
 
   async search(query, { page } = {}) {
     try {
-      //TOOD: combiner les setState
       this.setState({ query });
 
       const artists = await api.search(query, { p: page ? page - 1 : 0 });
@@ -111,14 +110,13 @@ class SearchPage extends Component {
   }
 
   changePage({ query, page }) {
-    console.log("page :", page);
-    console.log("query :", query);
     this.updateQueryParams({ query, page });
     this.search(query, { page });
   }
 
   render() {
     const { error, query, artists, page } = this.state;
+    const currentPage = page || 1;
 
     const numberOfPages =
       artists && artists.total > artists.limit
@@ -193,11 +191,17 @@ class SearchPage extends Component {
                     </button>
                   </li>
                 )}
-                {pages.map(page => (
-                  <li className="page-item" key={"page" + page}>
+                {pages.map((page, index) => (
+                  <li
+                    className={`page-item ${index + 1 == currentPage &&
+                      "disabled"}`}
+                    key={"page" + page}
+                  >
                     <button
                       className="page-link"
-                      onClick={() => this.goToPage(page)}
+                      onClick={() =>
+                        index + 1 != currentPage && this.goToPage(page)
+                      }
                     >
                       {page}
                     </button>
