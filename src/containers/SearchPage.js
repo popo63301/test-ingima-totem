@@ -181,7 +181,7 @@ class SearchPage extends Component {
           <div className="container text-center">
             <nav aria-label="Page navigation example">
               <ul className="pagination">
-                {page > 1 && (
+                {currentPage > 1 && (
                   <li>
                     <button
                       className="page-link"
@@ -207,7 +207,7 @@ class SearchPage extends Component {
                     </button>
                   </li>
                 ))}
-                {page < numberOfPages && (
+                {currentPage < numberOfPages && (
                   <li className="page-item">
                     <button className="page-link" onClick={this.goToNextPage}>
                       Next
