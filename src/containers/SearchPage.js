@@ -27,6 +27,7 @@ class SearchPage extends Component {
     this.handleSearchInputChange = this.handleSearchInputChange.bind(this);
     this.goToNextPage = this.goToNextPage.bind(this);
     this.goToPreviousPage = this.goToPreviousPage.bind(this);
+    this.changePage = this.changePage.bind(this);
 
     this.state = {
       artists: {},
@@ -86,20 +87,32 @@ class SearchPage extends Component {
       this.setState({ error });
     }
   }
+  goToPreviousPage() {
+    const { query, page } = this.state;
+    const newPage = page - 1;
 
-  goToNextPage() {
-    this.setState(({ page }) => ({ page: page - 1 }));
+    this.setState({ page: newPage });
+    this.changePage({ query, page: newPage });
   }
 
-  goToPreviousPage() {
-    this.setState(({ page }) => ({ page: page + 1 }));
+  goToNextPage() {
+    const { query, page } = this.state;
+    const newPage = page + 1;
+
+    this.setState({ page: newPage });
+    this.changePage({ query, page: newPage });
   }
 
   goToPage(page) {
     const { query } = this.state;
 
     this.setState({ page });
+    this.changePage({ query, page });
+  }
 
+  changePage({ query, page }) {
+    console.log("page :", page);
+    console.log("query :", query);
     this.updateQueryParams({ query, page });
     this.search(query, { page });
   }
@@ -172,13 +185,12 @@ class SearchPage extends Component {
               <ul className="pagination">
                 {page > 1 && (
                   <li>
-                    <a
+                    <button
                       className="page-link"
-                      href="#"
                       onClick={this.goToPreviousPage}
                     >
                       Previous
-                    </a>
+                    </button>
                   </li>
                 )}
                 {pages.map(page => (
@@ -193,13 +205,9 @@ class SearchPage extends Component {
                 ))}
                 {page < numberOfPages && (
                   <li className="page-item">
-                    <a
-                      className="page-link"
-                      href="#"
-                      onClick={this.goToNextPage}
-                    >
+                    <button className="page-link" onClick={this.goToNextPage}>
                       Next
-                    </a>
+                    </button>
                   </li>
                 )}
               </ul>
