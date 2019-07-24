@@ -1,119 +1,117 @@
-import React, { Component } from 'react'
+import React, { Component } from "react";
 
-import { withRouter } from 'react-router'
+import { withRouter } from "react-router";
 
-import { Link } from 'react-router-dom'
+import _ from "lodash";
+import api from "../utils/api";
 
-import _ from 'lodash'
-import api from '../utils/api'
+import Loading from "../components/Loading";
+import Error from "../components/Error";
 
-import Loading from '../components/Loading'
-import Error from '../components/Error'
-
-import SearchResultItem from '../components/SearchResultItem'
+import SearchResultItem from "../components/SearchResultItem";
 
 function getQueryParams(query) {
-  const params = new URLSearchParams(location.search)
+  const params = new URLSearchParams(location.search);
 
   return {
-    query: params.get('q'),
-    page: params.get('p'),
-  }
+    query: params.get("q"),
+    page: params.get("p")
+  };
 }
 
 class SearchPage extends Component {
   constructor(props) {
-    super(props)
+    super(props);
 
-    this.search = _.throttle(this.search.bind(this), 500)
-    this.handleSearchInputChange = this.handleSearchInputChange.bind(this)
-    this.goToNextPage = this.goToNextPage.bind(this)
-    this.goToPreviousPage = this.goToPreviousPage.bind(this)
+    this.search = _.throttle(this.search.bind(this), 500);
+    this.handleSearchInputChange = this.handleSearchInputChange.bind(this);
+    this.goToNextPage = this.goToNextPage.bind(this);
+    this.goToPreviousPage = this.goToPreviousPage.bind(this);
 
-    const { location } = this.props
+    const { location } = this.props;
 
-    const params = location.search && getQueryParams(location.search)
+    const params = location.search && getQueryParams(location.search);
 
     this.state = {
       artists: {},
       ...params,
-      error: null,
-    }
+      error: null
+    };
 
-    if (params.query) this.search(params.query, { page: params.page })
+    if (params.query) this.search(params.query, { page: params.page });
   }
 
   updateQueryParams({ query, page }) {
-    const { history } = this.props
+    const { history } = this.props;
 
-    const params = new URLSearchParams()
+    const params = new URLSearchParams();
 
-    params.set('q', query)
+    params.set("q", query);
 
     if (page && page > 1) {
-      params.set('p', page)
+      params.set("p", page);
     }
 
     history.push({
-      search: params.toString(),
-    })
+      search: params.toString()
+    });
   }
 
   handleSearchInputChange(e) {
-    const query = e.target.value
+    const query = e.target.value;
 
-    if (!query || query.length < 3) return
+    if (!query || query.length < 3) return;
 
-    this.search(query)
+    this.search(query);
 
-    const page = 1
+    const page = 1;
 
-    this.setState({ page })
+    this.setState({ page });
 
-    this.updateQueryParams({ query, page })
+    this.updateQueryParams({ query, page });
   }
 
   async search(query, { page } = {}) {
     try {
-      this.setState({ query })
+      this.setState({ query });
 
-      const artists = await api.search(query, { p: page })
+      const artists = await api.search(query, { p: page });
 
-      this.setState({ artists })
+      this.setState({ artists });
     } catch (error) {
-      this.setState({ error })
+      this.setState({ error });
     }
   }
 
   goToNextPage() {
-    this.setState(({ page }) => ({ page: page - 1 }))
+    this.setState(({ page }) => ({ page: page - 1 }));
   }
 
   goToPreviousPage() {
-    this.setState(({ page }) => ({ page: page + 1 }))
+    this.setState(({ page }) => ({ page: page + 1 }));
   }
 
   goToPage(page) {
-    const { query } = this.state
+    const { query } = this.state;
 
-    this.setState({ page })
+    this.setState({ page });
 
-    this.updateQueryParams({ query, page })
-    this.search(query, page)
+    this.updateQueryParams({ query, page });
+    this.search(query, page);
   }
 
   render() {
-    const { error, query, artists, page } = this.state
+    const { error, query, artists, page } = this.state;
 
     const numberOfPages =
       artists && artists.total > artists.limit
         ? Math.round(artists.total / artists.limit)
-        : 1
+        : 1;
 
-    let pages = []
+    let pages = [];
 
     for (let index = 1; index < numberOfPages; index++) {
-      pages.push(index)
+      pages.push(index);
     }
 
     return (
@@ -164,48 +162,50 @@ class SearchPage extends Component {
         ) : (
           <Loading />
         )}
-        {pages &&
-          pages.length > 1 && (
-            <div className="container text-center">
-              <nav aria-label="Page navigation example">
-                <ul className="pagination">
-                  {artists.limit * page > artists.total && (
-                    <li>
-                      <a
-                        className="page-link"
-                        href="#"
-                        onClick={this.goToPreviousPage}>
-                        Previous
-                      </a>
-                    </li>
-                  )}
-                  {pages.map(page => (
-                    <li className="page-item" key={'page' + page}>
-                      <a
-                        className="page-link"
-                        href="#"
-                        onClick={() => this.goToPage(page)}>
-                        {page}
-                      </a>
-                    </li>
-                  ))}
-                  {artists.limit * page < artists.total && (
-                    <li className="page-item">
-                      <a
-                        className="page-link"
-                        href="#"
-                        onClick={this.goToNextPage}>
-                        Next
-                      </a>
-                    </li>
-                  )}
-                </ul>
-              </nav>
-            </div>
-          )}
+        {pages && pages.length > 1 && (
+          <div className="container text-center">
+            <nav aria-label="Page navigation example">
+              <ul className="pagination">
+                {artists.limit * page > artists.total && (
+                  <li>
+                    <a
+                      className="page-link"
+                      href="#"
+                      onClick={this.goToPreviousPage}
+                    >
+                      Previous
+                    </a>
+                  </li>
+                )}
+                {pages.map(page => (
+                  <li className="page-item" key={"page" + page}>
+                    <a
+                      className="page-link"
+                      href="#"
+                      onClick={() => this.goToPage(page)}
+                    >
+                      {page}
+                    </a>
+                  </li>
+                ))}
+                {artists.limit * page < artists.total && (
+                  <li className="page-item">
+                    <a
+                      className="page-link"
+                      href="#"
+                      onClick={this.goToNextPage}
+                    >
+                      Next
+                    </a>
+                  </li>
+                )}
+              </ul>
+            </nav>
+          </div>
+        )}
       </div>
-    )
+    );
   }
 }
 
-export default withRouter(SearchPage)
+export default withRouter(SearchPage);
