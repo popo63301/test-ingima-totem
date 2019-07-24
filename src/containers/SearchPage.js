@@ -101,7 +101,7 @@ class SearchPage extends Component {
     this.setState({ page });
 
     this.updateQueryParams({ query, page });
-    this.search(query, page);
+    this.search(query, { page });
   }
 
   render() {
@@ -183,13 +183,12 @@ class SearchPage extends Component {
                 )}
                 {pages.map(page => (
                   <li className="page-item" key={"page" + page}>
-                    <a
+                    <button
                       className="page-link"
-                      href="#"
                       onClick={() => this.goToPage(page)}
                     >
                       {page}
-                    </a>
+                    </button>
                   </li>
                 ))}
                 {page < numberOfPages && (
