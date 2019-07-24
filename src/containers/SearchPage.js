@@ -28,15 +28,17 @@ class SearchPage extends Component {
     this.goToNextPage = this.goToNextPage.bind(this);
     this.goToPreviousPage = this.goToPreviousPage.bind(this);
 
+    this.state = {
+      artists: {},
+      page: 1,
+      error: null
+    };
+  }
+
+  componentDidMount() {
     const { location } = this.props;
 
     const params = location.search && getQueryParams(location.search);
-
-    this.state = {
-      artists: {},
-      ...params,
-      error: null
-    };
 
     if (params.query) this.search(params.query, { page: params.page });
   }
@@ -62,6 +64,7 @@ class SearchPage extends Component {
 
     if (!query || query.length < 3) return;
 
+    //TOOD: combiner les setState
     this.search(query);
 
     const page = 1;
@@ -73,11 +76,12 @@ class SearchPage extends Component {
 
   async search(query, { page } = {}) {
     try {
+      //TOOD: combiner les setState
       this.setState({ query });
 
-      const artists = await api.search(query, { p: page });
+      const artists = await api.search(query, { p: page ? page - 1 : 0 });
 
-      this.setState({ artists });
+      this.setState({ artists, page });
     } catch (error) {
       this.setState({ error });
     }
@@ -105,12 +109,12 @@ class SearchPage extends Component {
 
     const numberOfPages =
       artists && artists.total > artists.limit
-        ? Math.round(artists.total / artists.limit)
+        ? Math.ceil(artists.total / artists.limit)
         : 1;
 
     let pages = [];
 
-    for (let index = 1; index < numberOfPages; index++) {
+    for (let index = 1; index <= numberOfPages; index++) {
       pages.push(index);
     }
 
@@ -166,7 +170,7 @@ class SearchPage extends Component {
           <div className="container text-center">
             <nav aria-label="Page navigation example">
               <ul className="pagination">
-                {artists.limit * page > artists.total && (
+                {page > 1 && (
                   <li>
                     <a
                       className="page-link"
@@ -188,7 +192,7 @@ class SearchPage extends Component {
                     </a>
                   </li>
                 ))}
-                {artists.limit * page < artists.total && (
+                {page < numberOfPages && (
                   <li className="page-item">
                     <a
                       className="page-link"
