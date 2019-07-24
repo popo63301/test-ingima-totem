@@ -1,0 +1,32 @@
+.media-container {
+  padding: 1.5rem;
+  margin-right: 0;
+  margin-left: 0;
+  border-width: .2rem;
+}
+
+
+.artist-link {
+  color: inherit;
+}
+
+.artist-link:hover, .album-link:hover {
+  text-decoration: none;
+}
+
+div, section, header, footer {
+  display: flex;
+  flex-direction: column;
+} 
+
+.content {
+  flex: 1;
+}
+
+#root {
+  min-height: 100vh;
+}
+
+.row {
+  flex-direction: row;
+}
