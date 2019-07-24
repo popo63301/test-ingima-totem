@@ -29,7 +29,8 @@ const setupAuthInterceptor = history => {
 
 const search = (q, params) => api.get("search", { params: { q, ...params } });
 
-const getArtistAlbums = artistId => api.get("artist/" + artistId);
+const getArtistAlbums = (artistId, params) =>
+  api.get("artist/" + artistId, { params: { ...params } });
 const getAlbum = albumId => api.get("album/" + albumId);
 
 export default { search, getArtistAlbums, getAlbum, setupAuthInterceptor };

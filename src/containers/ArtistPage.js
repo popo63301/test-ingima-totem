@@ -8,6 +8,15 @@ import Error from "../components/Error";
 
 import api from "../utils/api";
 
+function getQueryParams(query) {
+  const params = new URLSearchParams(location.search);
+
+  return {
+    query: params.get("q"),
+    page: params.get("p")
+  };
+}
+
 class ArtistPage extends React.Component {
   constructor(props) {
     super(props);
@@ -18,23 +27,49 @@ class ArtistPage extends React.Component {
     };
   }
 
+  componentDidMount() {
+    // const { location } = this.props;
+
+    // const params = location.search && getQueryParams(location.search);
+
+    // if (params.query) this.search(params.query, { page: params.page });
+
+    const { location } = this.props;
+
+    const params = location.search && getQueryParams(location.search);
+
+    // if (params.query)
+    console.log("params :", params); //NEXT : here, get page number
+    this.getArtistAlbums();
+  }
+
   async getArtistAlbums() {
     const {
       match: { params }
     } = this.props;
 
     try {
-      const { items: artistAlbums } = await api.getArtistAlbums(params.id);
-
+      const { items: artistAlbums, ...data } = await api.getArtistAlbums(
+        params.id
+      );
+      console.log("data :", data);
       this.setState({ artistAlbums, error: null });
     } catch (error) {
       this.setState({ error });
     }
   }
 
-  componentDidMount() {
-    this.getArtistAlbums();
-  }
+  //   async search(query, { page } = {}) {
+  //   try {
+  //     this.setState({ query });
+
+  //     const artists = await api.search(query, { p: page ? page - 1 : 0 });
+
+  //     this.setState({ artists, page });
+  //   } catch (error) {
+  //     this.setState({ error });
+  //   }
+  // }
 
   render() {
     const { artistAlbums, error } = this.state;
