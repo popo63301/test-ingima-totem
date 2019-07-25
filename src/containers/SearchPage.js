@@ -11,7 +11,7 @@ import Error from "../components/Error";
 import SearchResultItem from "../components/SearchResultItem";
 
 function getQueryParams(query) {
-  const params = new URLSearchParams(location.search);
+  const params = new URLSearchParams(query);
 
   return {
     query: params.get("q"),

@@ -34,12 +34,12 @@ app.get("/api/search", async (req, res, next) => {
 app.get("/api/artist/:id/", async (req, res, next) => {
   const { id } = req.params;
   const { p } = req.query;
-  console.log("p :", p);
-  console.log("req.params :", req.params);
-  console.log("req.query :", req.query);
-  console.log("req :", req);
+
+  const page = Number(p);
+
+  const options = Object.assign({}, page && { offset: page * limit });
   try {
-    const result = await spotify.getArtistAlbums(id);
+    const result = await spotify.getArtistAlbums(id, options);
 
     res.json(result.body);
   } catch (err) {

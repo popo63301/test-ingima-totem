@@ -9,10 +9,9 @@ import Error from "../components/Error";
 import api from "../utils/api";
 
 function getQueryParams(query) {
-  const params = new URLSearchParams(location.search);
+  const params = new URLSearchParams(query);
 
   return {
-    query: params.get("q"),
     page: params.get("p")
   };
 }
@@ -21,62 +20,102 @@ class ArtistPage extends React.Component {
   constructor(props) {
     super(props);
 
+    this.goToPage = this.goToPage.bind(this);
+    this.goToNextPage = this.goToNextPage.bind(this);
+    this.goToPreviousPage = this.goToPreviousPage.bind(this);
+    this.changePage = this.changePage.bind(this);
+
     this.state = {
       artistAlbums: null,
-      error: null
+      error: null,
+      page: 1
     };
   }
 
   componentDidMount() {
-    // const { location } = this.props;
-
-    // const params = location.search && getQueryParams(location.search);
-
-    // if (params.query) this.search(params.query, { page: params.page });
-
     const { location } = this.props;
 
     const params = location.search && getQueryParams(location.search);
 
-    // if (params.query)
-    console.log("params :", params); //NEXT : here, get page number
-    this.getArtistAlbums();
+    this.getArtistAlbums(params.page);
   }
 
-  async getArtistAlbums() {
+  async getArtistAlbums(p) {
     const {
       match: { params }
     } = this.props;
 
     try {
-      const { items: artistAlbums, ...data } = await api.getArtistAlbums(
-        params.id
-      );
+      const {
+        items: artistAlbums,
+        total: totalAlbumsNumber,
+        limit,
+        ...data
+      } = await api.getArtistAlbums(params.id, { p: p ? p - 1 : 0 });
       console.log("data :", data);
-      this.setState({ artistAlbums, error: null });
+      this.setState({ artistAlbums, totalAlbumsNumber, limit, error: null });
     } catch (error) {
       this.setState({ error });
     }
   }
 
-  //   async search(query, { page } = {}) {
-  //   try {
-  //     this.setState({ query });
+  updateQueryParams({ page }) {
+    const { history } = this.props;
 
-  //     const artists = await api.search(query, { p: page ? page - 1 : 0 });
+    const params = new URLSearchParams();
 
-  //     this.setState({ artists, page });
-  //   } catch (error) {
-  //     this.setState({ error });
-  //   }
-  // }
+    if (page && page > 1) {
+      params.set("p", page);
+    }
+
+    history.push({
+      search: params.toString()
+    });
+  }
+
+  goToPreviousPage() {
+    const { page } = this.state;
+    const newPage = page - 1;
+
+    this.setState({ page: newPage });
+    this.changePage({ page: newPage });
+  }
+
+  goToNextPage() {
+    const { page } = this.state;
+    const newPage = page + 1;
+
+    this.setState({ page: newPage });
+    this.changePage({ page: newPage });
+  }
+
+  goToPage(page) {
+    this.setState({ page });
+    this.changePage({ page });
+  }
+
+  changePage({ page }) {
+    this.updateQueryParams({ page });
+    this.getArtistAlbums(page);
+  }
 
   render() {
-    const { artistAlbums, error } = this.state;
+    const { artistAlbums, page, totalAlbumsNumber, limit, error } = this.state;
 
     if (error) return <Error error={error} />;
 
     if (!artistAlbums) return <Loading />;
+
+    const currentPage = page || 1;
+
+    const numberOfPages =
+      totalAlbumsNumber > limit ? Math.ceil(totalAlbumsNumber / limit) : 1;
+
+    let pages = [];
+
+    for (let index = 1; index <= numberOfPages; index++) {
+      pages.push(index);
+    }
 
     return (
       <div className="content container">
@@ -114,6 +153,48 @@ class ArtistPage extends React.Component {
             </Link>
           ))}
         </div>
+
+        {pages && pages.length > 1 && (
+          <div className="container text-center">
+            <nav aria-label="Page navigation example">
+              <ul className="pagination">
+                {currentPage > 1 && (
+                  <li>
+                    <button
+                      className="page-link"
+                      onClick={this.goToPreviousPage}
+                    >
+                      Previous
+                    </button>
+                  </li>
+                )}
+                {pages.map((page, index) => (
+                  <li
+                    className={`page-item ${index + 1 == currentPage &&
+                      "disabled"}`}
+                    key={"page" + page}
+                  >
+                    <button
+                      className="page-link"
+                      onClick={() =>
+                        index + 1 != currentPage && this.goToPage(page)
+                      }
+                    >
+                      {page}
+                    </button>
+                  </li>
+                ))}
+                {currentPage < numberOfPages && (
+                  <li className="page-item">
+                    <button className="page-link" onClick={this.goToNextPage}>
+                      Next
+                    </button>
+                  </li>
+                )}
+              </ul>
+            </nav>
+          </div>
+        )}
       </div>
     );
   }
