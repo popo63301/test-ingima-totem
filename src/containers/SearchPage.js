@@ -43,7 +43,8 @@ class SearchPage extends Component {
 
     const params = location.search && getQueryParams(location.search);
 
-    if (params.query) this.search(params.query, { page: params.page || 1 });
+    if (params.query)
+      this.search(params.query, { page: Number(params.page) || 1 });
   }
 
   updateQueryParams({ query, page }) {
@@ -97,7 +98,6 @@ class SearchPage extends Component {
 
   goToNextPage() {
     const { page } = this.state;
-    console.log("page :", page);
     const newPage = page + 1;
 
     this.changePage({ page: newPage });
