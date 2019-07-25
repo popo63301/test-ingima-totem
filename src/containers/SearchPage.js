@@ -89,28 +89,27 @@ class SearchPage extends Component {
   }
 
   goToPreviousPage() {
-    const { query, page } = this.state;
+    const { page } = this.state;
     const newPage = page - 1;
 
-    this.changePage({ query, page: newPage });
+    this.changePage({ page: newPage });
   }
 
   goToNextPage() {
-    const { query, page } = this.state;
+    const { page } = this.state;
     const newPage = page + 1;
 
-    this.changePage({ query, page: newPage });
+    this.changePage({ page: newPage });
   }
 
   goToPage(page) {
     if (!isNaN(page)) {
-      const { query } = this.state;
-
-      this.changePage({ query, page });
+      this.changePage({ page });
     }
   }
 
-  changePage({ query, page }) {
+  changePage({ page }) {
+    const { query } = this.state;
     this.updateQueryParams({ query, page });
     this.search(query, { page });
   }

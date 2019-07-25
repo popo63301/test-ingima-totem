@@ -83,7 +83,6 @@ class ArtistPage extends React.Component {
     const { page } = this.state;
     const newPage = page - 1;
 
-    this.setState({ page: newPage });
     this.changePage({ page: newPage });
   }
 
@@ -91,13 +90,11 @@ class ArtistPage extends React.Component {
     const { page } = this.state;
     const newPage = page + 1;
 
-    this.setState({ page: newPage });
     this.changePage({ page: newPage });
   }
 
   goToPage(page) {
     if (!isNaN(page)) {
-      this.setState({ page });
       this.changePage({ page });
     }
   }
