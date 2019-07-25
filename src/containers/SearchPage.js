@@ -7,6 +7,7 @@ import api from "../utils/api";
 
 import Loading from "../components/Loading";
 import Error from "../components/Error";
+import Pagination from "../components/Pagination";
 
 import SearchResultItem from "../components/SearchResultItem";
 
@@ -25,6 +26,7 @@ class SearchPage extends Component {
 
     this.search = _.throttle(this.search.bind(this), 500);
     this.handleSearchInputChange = this.handleSearchInputChange.bind(this);
+    this.goToPage = this.goToPage.bind(this);
     this.goToNextPage = this.goToNextPage.bind(this);
     this.goToPreviousPage = this.goToPreviousPage.bind(this);
     this.changePage = this.changePage.bind(this);
@@ -65,7 +67,6 @@ class SearchPage extends Component {
 
     if (!query || query.length < 3) return;
 
-    //TOOD: combiner les setState
     this.search(query);
 
     const page = 1;
@@ -86,11 +87,11 @@ class SearchPage extends Component {
       this.setState({ error });
     }
   }
+
   goToPreviousPage() {
     const { query, page } = this.state;
     const newPage = page - 1;
 
-    this.setState({ page: newPage });
     this.changePage({ query, page: newPage });
   }
 
@@ -98,15 +99,15 @@ class SearchPage extends Component {
     const { query, page } = this.state;
     const newPage = page + 1;
 
-    this.setState({ page: newPage });
     this.changePage({ query, page: newPage });
   }
 
   goToPage(page) {
-    const { query } = this.state;
+    if (!isNaN(page)) {
+      const { query } = this.state;
 
-    this.setState({ page });
-    this.changePage({ query, page });
+      this.changePage({ query, page });
+    }
   }
 
   changePage({ query, page }) {
@@ -122,12 +123,6 @@ class SearchPage extends Component {
       artists && artists.total > artists.limit
         ? Math.ceil(artists.total / artists.limit)
         : 1;
-
-    let pages = [];
-
-    for (let index = 1; index <= numberOfPages; index++) {
-      pages.push(index);
-    }
 
     return (
       <div className="content container">
@@ -177,47 +172,14 @@ class SearchPage extends Component {
         ) : (
           <Loading />
         )}
-        {pages && pages.length > 1 && (
-          <div className="container text-center">
-            <nav aria-label="Page navigation example">
-              <ul className="pagination">
-                {currentPage > 1 && (
-                  <li>
-                    <button
-                      className="page-link"
-                      onClick={this.goToPreviousPage}
-                    >
-                      Previous
-                    </button>
-                  </li>
-                )}
-                {pages.map((page, index) => (
-                  <li
-                    className={`page-item ${index + 1 == currentPage &&
-                      "disabled"}`}
-                    key={"page" + page}
-                  >
-                    <button
-                      className="page-link"
-                      onClick={() =>
-                        index + 1 != currentPage && this.goToPage(page)
-                      }
-                    >
-                      {page}
-                    </button>
-                  </li>
-                ))}
-                {currentPage < numberOfPages && (
-                  <li className="page-item">
-                    <button className="page-link" onClick={this.goToNextPage}>
-                      Next
-                    </button>
-                  </li>
-                )}
-              </ul>
-            </nav>
-          </div>
-        )}
+
+        <Pagination
+          currentPage={currentPage}
+          numberOfPages={numberOfPages}
+          goToPage={this.goToPage}
+          goToPreviousPage={this.goToPreviousPage}
+          goToNextPage={this.goToNextPage}
+        />
       </div>
     );
   }

@@ -5,6 +5,7 @@ import { withRouter } from "react-router";
 
 import Loading from "../components/Loading";
 import Error from "../components/Error";
+import Pagination from "../components/Pagination";
 
 import api from "../utils/api";
 
@@ -106,35 +107,6 @@ class ArtistPage extends React.Component {
     this.getArtistAlbums(page);
   }
 
-  pagination(currentPage, pageCount) {
-    const delta = 2;
-    const left = currentPage - delta;
-    const right = currentPage + delta + 1;
-    let result = [];
-
-    result = Array.from({ length: pageCount }, (v, k) => k + 1).filter(
-      i => i && i >= left && i < right
-    );
-
-    if (result.length > 1) {
-      if (result[0] > 1) {
-        if (result[0] > 2) {
-          result.unshift("...");
-        }
-        result.unshift(1);
-      }
-
-      if (result[result.length - 1] < pageCount) {
-        if (result[result.length - 1] !== pageCount - 1) {
-          result.push("...");
-        }
-        result.push(pageCount);
-      }
-    }
-
-    return result;
-  }
-
   render() {
     const { artistAlbums, page, totalAlbumsNumber, limit, error } = this.state;
 
@@ -146,8 +118,6 @@ class ArtistPage extends React.Component {
 
     const numberOfPages =
       totalAlbumsNumber > limit ? Math.ceil(totalAlbumsNumber / limit) : 1;
-
-    const pages = this.pagination(currentPage, numberOfPages);
 
     return (
       <div className="content container">
@@ -186,44 +156,13 @@ class ArtistPage extends React.Component {
           ))}
         </div>
 
-        {pages && pages.length > 1 && (
-          <div className="container text-center">
-            <nav aria-label="Page navigation example">
-              <ul className="pagination">
-                {currentPage > 1 && (
-                  <li>
-                    <button
-                      className="page-link"
-                      onClick={this.goToPreviousPage}
-                    >
-                      Previous
-                    </button>
-                  </li>
-                )}
-                {pages.map((page, index) => (
-                  <li
-                    className={`page-item ${page == currentPage && "disabled"}`}
-                    key={"page" + index}
-                  >
-                    <button
-                      className="page-link"
-                      onClick={() => page != currentPage && this.goToPage(page)}
-                    >
-                      {page}
-                    </button>
-                  </li>
-                ))}
-                {currentPage < numberOfPages && (
-                  <li className="page-item">
-                    <button className="page-link" onClick={this.goToNextPage}>
-                      Next
-                    </button>
-                  </li>
-                )}
-              </ul>
-            </nav>
-          </div>
-        )}
+        <Pagination
+          currentPage={currentPage}
+          numberOfPages={numberOfPages}
+          goToPage={this.goToPage}
+          goToPreviousPage={this.goToPreviousPage}
+          goToNextPage={this.goToNextPage}
+        />
       </div>
     );
   }
