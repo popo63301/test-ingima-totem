@@ -55,7 +55,7 @@ class ArtistPage extends React.Component {
 
       this.setState({
         artistAlbums,
-        page: Number(p),
+        page: Number(p) || 1,
         totalAlbumsNumber,
         limit,
         error: null
