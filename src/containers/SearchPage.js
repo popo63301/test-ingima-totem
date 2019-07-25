@@ -82,8 +82,7 @@ class SearchPage extends Component {
       this.setState({ query });
 
       const artists = await api.search(query, { p: page ? page - 1 : 0 });
-
-      this.setState({ artists, page });
+      this.setState({ artists, page: Number(page) || 1 });
     } catch (error) {
       this.setState({ error });
     }
