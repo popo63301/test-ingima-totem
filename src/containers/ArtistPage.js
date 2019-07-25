@@ -49,11 +49,16 @@ class ArtistPage extends React.Component {
       const {
         items: artistAlbums,
         total: totalAlbumsNumber,
-        limit,
-        ...data
+        limit
       } = await api.getArtistAlbums(params.id, { p: p ? p - 1 : 0 });
-      console.log("data :", data);
-      this.setState({ artistAlbums, totalAlbumsNumber, limit, error: null });
+
+      this.setState({
+        artistAlbums,
+        page: Number(p),
+        totalAlbumsNumber,
+        limit,
+        error: null
+      });
     } catch (error) {
       this.setState({ error });
     }
@@ -90,13 +95,44 @@ class ArtistPage extends React.Component {
   }
 
   goToPage(page) {
-    this.setState({ page });
-    this.changePage({ page });
+    if (!isNaN(page)) {
+      this.setState({ page });
+      this.changePage({ page });
+    }
   }
 
   changePage({ page }) {
     this.updateQueryParams({ page });
     this.getArtistAlbums(page);
+  }
+
+  pagination(currentPage, pageCount) {
+    const delta = 2;
+    const left = currentPage - delta;
+    const right = currentPage + delta + 1;
+    let result = [];
+
+    result = Array.from({ length: pageCount }, (v, k) => k + 1).filter(
+      i => i && i >= left && i < right
+    );
+
+    if (result.length > 1) {
+      if (result[0] > 1) {
+        if (result[0] > 2) {
+          result.unshift("...");
+        }
+        result.unshift(1);
+      }
+
+      if (result[result.length - 1] < pageCount) {
+        if (result[result.length - 1] !== pageCount - 1) {
+          result.push("...");
+        }
+        result.push(pageCount);
+      }
+    }
+
+    return result;
   }
 
   render() {
@@ -111,11 +147,7 @@ class ArtistPage extends React.Component {
     const numberOfPages =
       totalAlbumsNumber > limit ? Math.ceil(totalAlbumsNumber / limit) : 1;
 
-    let pages = [];
-
-    for (let index = 1; index <= numberOfPages; index++) {
-      pages.push(index);
-    }
+    const pages = this.pagination(currentPage, numberOfPages);
 
     return (
       <div className="content container">
@@ -170,15 +202,12 @@ class ArtistPage extends React.Component {
                 )}
                 {pages.map((page, index) => (
                   <li
-                    className={`page-item ${index + 1 == currentPage &&
-                      "disabled"}`}
-                    key={"page" + page}
+                    className={`page-item ${page == currentPage && "disabled"}`}
+                    key={"page" + index}
                   >
                     <button
                       className="page-link"
-                      onClick={() =>
-                        index + 1 != currentPage && this.goToPage(page)
-                      }
+                      onClick={() => page != currentPage && this.goToPage(page)}
                     >
                       {page}
                     </button>
